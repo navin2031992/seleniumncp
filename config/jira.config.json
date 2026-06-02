@@ -1,0 +1,22 @@
+{
+  "_comment": "Set JIRA_BASE_URL, JIRA_EMAIL, JIRA_API_TOKEN as environment variables. Never commit credentials.",
+  "baseUrl": "${JIRA_BASE_URL}",
+  "email": "${JIRA_EMAIL}",
+  "apiToken": "${JIRA_API_TOKEN}",
+  "projectKey": "PROJ",
+  "testLabelPrefix": "automated",
+  "priorityMapping": {
+    "Blocker": "P0",
+    "Critical": "P0",
+    "High": "P1",
+    "Medium": "P2",
+    "Low": "P3"
+  },
+  "issueTypeMapping": {
+    "Story": "E2E",
+    "Bug": "Regression",
+    "Task": "Functional",
+    "Sub-task": "Unit",
+    "Epic": "Suite"
+  }
+}

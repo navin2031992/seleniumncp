@@ -1,0 +1,45 @@
+{
+  "browser": {
+    "default": "edge",
+    "options": {
+      "headless": false,
+      "windowSize": "1920,1080",
+      "disableGpu": true,
+      "noSandbox": true,
+      "disableDevShmUsage": true
+    }
+  },
+  "timeouts": {
+    "implicit": 10000,
+    "explicit": 15000,
+    "pageLoad": 30000,
+    "script": 10000
+  },
+  "retries": {
+    "onFailure": 3,
+    "retryDelay": 2000,
+    "retryableErrors": [
+      "StaleElementReferenceError",
+      "ElementNotInteractableError",
+      "TimeoutError",
+      "NoSuchWindowError"
+    ]
+  },
+  "screenshots": {
+    "onFailure": true,
+    "onEveryStep": false,
+    "outputDir": "tests/screenshots",
+    "format": "png"
+  },
+  "reporting": {
+    "outputDir": "tests/reports",
+    "htmlReport": true,
+    "jsonReport": true,
+    "junitReport": true
+  },
+  "webhookUrl": "",
+  "qualityGate": {
+    "minPassRate": 90,
+    "maxFlakiness": 5
+  }
+}

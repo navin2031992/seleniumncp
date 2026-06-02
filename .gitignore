@@ -1,0 +1,16 @@
+node_modules/
+.env
+
+# Test artifacts (generated at runtime)
+tests/screenshots/actual/
+tests/screenshots/failures/
+tests/reports/
+tests/pipeline-state.json
+tests/maintenance-log.md
+
+# Keep baseline screenshots in git (approved visual baselines)
+!tests/screenshots/baseline/
+
+# IDE
+.vscode/
+*.log

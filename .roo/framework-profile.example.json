@@ -1,0 +1,63 @@
+{
+  "_comment": "This file documents every field the Framework Analyzer writes to framework-profile.json. The actual file is written by running the Framework Analyzer agent against your project.",
+
+  "detectedAt": "ISO-8601 timestamp when analysis was run",
+  "language": "java | python | javascript | typescript | csharp | ruby",
+  "buildTool": "maven | gradle | npm | pip | dotnet | bundler | none",
+
+  "testFramework": "One of: cucumber-testng | cucumber-junit | testng | junit5 | junit4 | pytest | behave | robot | jest | playwright | cypress | webdriverio | nunit | mstest | xunit | specflow | rspec-capybara",
+  "bdd": "true if project uses .feature files (Cucumber/behave/SpecFlow/Robot), false if direct test methods",
+  "featureFiles": "true if .feature files exist",
+
+  "browserAutomation": "selenium-webdriver | playwright | cypress | webdriverio | capybara | robot-seleniumlibrary",
+  "assertionLibrary": "assertj | testng-assert | junit-assert | hamcrest | jest-expect | chai | pytest-assert | nunit-assert | should-be (Robot)",
+  "reportingTool": "allure | extent | html-reporter | built-in | junit-xml | none",
+
+  "runCommand": "Command to run the full test suite (e.g. 'mvn test', 'pytest tests/', 'npx playwright test')",
+  "runSmoke": "Command to run smoke tests (e.g. 'mvn test -Psmoke', 'pytest -m smoke')",
+  "runRegression": "Command to run regression suite",
+  "runSingle": "Command to run a single test by tag or name (e.g. 'mvn test -Dcucumber.filter.tags=@{TAG}')",
+  "runHeadless": "Headless variant of runCommand (e.g. 'SELENIUM_HEADLESS=true mvn test')",
+
+  "structure": {
+    "testRoot": "Absolute or relative path to test source root",
+    "featureFiles": "Path to .feature files (BDD only)",
+    "stepDefinitions": "Path to step definition classes (BDD only)",
+    "pageObjects": "Path to page object classes (if POM pattern used)",
+    "baseClass": "Path to the BasePage/BaseTest class (if exists)",
+    "testData": "Path to test data files (JSON, YAML, CSV, Excel)",
+    "reports": "Where the framework writes its own reports (e.g. target/allure-results)"
+  },
+
+  "fileNaming": {
+    "testFile": "Naming pattern, e.g. '{Feature}Test.java' or 'test_{feature}.py' or '{feature}.spec.ts'",
+    "pageObject": "Page object naming, e.g. '{Page}Page.java' or '{page}_page.py'",
+    "featureFile": "Feature file naming, e.g. '{Feature}.feature' (BDD only)",
+    "stepFile": "Step definition naming, e.g. '{Feature}Steps.java' (BDD only)"
+  },
+
+  "basePackage": "Java/C# base package/namespace (e.g. 'com.example.automation')",
+  "locatorStrategy": "How selectors are written, e.g. 'By.cssSelector / @FindBy' or 'page.locator()' or 'cy.get()'",
+  "tagConvention": "How tests are tagged, e.g. '@smoke @regression @P0' or '@pytest.mark.smoke' or '[Category(\"Smoke\")]'",
+
+  "imports": {
+    "_comment": "Exact import statements used in this project. Copy from real test files.",
+    "selenium": "e.g. 'import org.openqa.selenium.*;'",
+    "testFramework": "e.g. 'import io.cucumber.java.en.*;'",
+    "assertions": "e.g. 'import static org.assertj.core.api.Assertions.assertThat;'",
+    "logger": "e.g. 'import org.apache.logging.log4j.LogManager;'"
+  },
+
+  "codeTemplate": "Paste verbatim content of a short, real test file here. This is the most important field — the Jira Test Creator uses this as its style guide.",
+
+  "pageObjectTemplate": "Paste verbatim content of a real page object class here (if project uses POM).",
+
+  "stepTemplate": "Paste verbatim content of a real step definition file here (BDD projects only).",
+
+  "notes": [
+    "Any important conventions not captured above",
+    "e.g. 'All tests must extend BaseTest'",
+    "e.g. 'Test data is loaded from tests/fixtures via TestDataReader.get()'",
+    "e.g. 'Page objects use @FindBy annotations, not direct By selectors'"
+  ]
+}

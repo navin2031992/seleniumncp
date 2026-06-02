@@ -1,0 +1,17 @@
+{
+  "dev": {
+    "baseUrl": "http://localhost:3000",
+    "apiUrl": "http://localhost:8080/api",
+    "label": "Local Development"
+  },
+  "staging": {
+    "baseUrl": "https://staging.example.com",
+    "apiUrl": "https://api-staging.example.com",
+    "label": "Staging"
+  },
+  "prod": {
+    "baseUrl": "https://example.com",
+    "apiUrl": "https://api.example.com",
+    "label": "Production (read-only tests only)"
+  }
+}
