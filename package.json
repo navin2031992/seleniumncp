@@ -1,0 +1,13 @@
+{
+  "name": "seleniummcp",
+  "version": "1.0.0",
+  "description": "Selenium MCP AI-driven test automation framework for Roo Code agents",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@angiejones/mcp-selenium": "latest"
+  }
+}

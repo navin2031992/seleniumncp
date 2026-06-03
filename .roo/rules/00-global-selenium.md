@@ -39,7 +39,7 @@ YOUR EXISTING PROJECT (any language / any framework)
   └─────────────────────────────────┘
 
 Also available:
-  📊 Test Gap Analyzer   — which Jira tickets have no tests?
+  📊 Test Gap Analyzer   — which tickets/stories have no tests? (accepts manual ticket input)
   📦 Test Data Manager   — manage test fixtures and data files
 ```
 
@@ -95,6 +95,15 @@ SELENIUM_HEADLESS=true
 
 See `EDGE-DRIVER-SETUP.md` for Edge WebDriver installation steps.
 
+## Jira Integration
+
+Jira is accessible via the **corporate LLM's built-in integration** — no separate Jira MCP package is configured in `.mcp.json`. Use the LLM's built-in ability to search and read Jira tickets directly.
+
+Common Jira operations:
+- Fetch a ticket: retrieve issue `PROJ-123` with its summary, description, and acceptance criteria
+- Search by sprint: find all Stories/Bugs/Tasks in `Sprint 42`
+- Filter by status: find open tickets for a project
+
 ## MCP Selenium Tools Quick Reference
 
 | Tool | Purpose |
@@ -113,15 +122,6 @@ See `EDGE-DRIVER-SETUP.md` for Edge WebDriver installation steps.
 | `selenium_hover` | Hover over an element |
 | `selenium_get_page_source` | Get full HTML of current page |
 | `selenium_close_session` | Close browser and end session |
-
-## Jira MCP Tools Quick Reference
-
-| Tool | Purpose |
-|------|---------|
-| `jira_get_issue` | Fetch single ticket: `jira_get_issue(issueKey: "PROJ-123")` |
-| `jira_search_issues` | JQL search: `jira_search_issues(jql: "sprint = 42 AND type = Story")` |
-| `jira_get_issue_comments` | Get comments on a ticket (QA notes often here) |
-| `jira_list_sprints` | List sprints: `jira_list_sprints(boardId: 1)` |
 
 ## Locator Registry Format
 

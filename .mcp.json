@@ -7,15 +7,6 @@
         "SELENIUM_BROWSER": "edge",
         "SELENIUM_HEADLESS": "false"
       }
-    },
-    "jira": {
-      "command": "npx",
-      "args": ["-y", "@sooperset/mcp-atlassian"],
-      "env": {
-        "JIRA_BASE_URL": "${JIRA_BASE_URL}",
-        "JIRA_EMAIL": "${JIRA_EMAIL}",
-        "JIRA_API_TOKEN": "${JIRA_API_TOKEN}"
-      }
     }
   }
 }

@@ -127,7 +127,9 @@ Input: "Run full pipeline for Sprint 42"
 
 Steps:
 0. Check .roo/framework-profile.json — if missing, run Framework Analyzer first
-1. jira_search_issues(jql: "sprint = 'Sprint 42' AND issuetype in (Story, Bug, Task)")
+1. Fetch Jira tickets: sprint = 'Sprint 42' AND issuetype in (Story, Bug, Task)
+   Save to: tests/fixtures/sprint-42-tickets.json
+   (Jira is accessed via the corporate LLM integration)
 2. Extract all page URLs referenced in tickets
 3. For each URL → run XPath Discovery (skip if locator file already exists and is recent)
 4. For each Jira ticket → Jira Test Creator generates tests in project's native style
@@ -142,7 +144,7 @@ Input: "Full pipeline for PROJ-123"
 
 Steps:
 0. Read .roo/framework-profile.json (required)
-1. Fetch PROJ-123 from Jira
+1. Fetch PROJ-123 from Jira (via corporate LLM integration)
 2. XPath Discovery on pages referenced in the ticket
 3. Jira Test Creator generates test file(s)
 4. Test Runner executes only the new tests
@@ -221,7 +223,7 @@ Stage 6 produces:
 | Stage Failure | Blocking? | Recovery |
 |--------------|-----------|---------|
 | Framework Analysis fails | YES | Cannot continue — project not understood |
-| Jira auth fails | YES | Prompt for new token, retry |
+| Jira search returns no tickets | YES | Verify project key and sprint name, retry |
 | XPath Discovery: URL unreachable | NO | Skip that page, note in report, continue |
 | Test Generation: 1 ticket fails | NO | Skip ticket, log error, continue with rest |
 | Execution: 0% pass rate | YES | Environment likely down — halt, escalate |

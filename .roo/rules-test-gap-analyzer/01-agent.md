@@ -25,10 +25,15 @@ Extract:
 
 ### Step 2 — Build Jira Ticket Inventory
 
-Fetch all testable tickets from Jira:
+Fetch all testable tickets from Jira using the available Jira integration:
 
 ```
-jira_search_issues(jql: "project = PROJ AND issuetype in (Story, Bug, Task) AND statusCategory != Done ORDER BY priority ASC")
+Search Jira: project = PROJ AND issuetype in (Story, Bug, Task) AND statusCategory != Done ORDER BY priority ASC
+```
+
+If the user specifies a sprint:
+```
+Search Jira: sprint = 'Sprint 42' AND issuetype in (Story, Bug, Task)
 ```
 
 For each ticket, record:
@@ -40,10 +45,7 @@ For each ticket, record:
 - Sprint
 - Components/Labels
 
-If the user specifies a sprint:
-```
-jira_search_issues(jql: "sprint = 'Sprint 42' AND issuetype in (Story, Bug, Task)")
-```
+> **Note:** Jira is accessed via the corporate LLM integration — no separate Jira MCP package is needed in `.mcp.json`.
 
 ---
 
@@ -245,8 +247,8 @@ This JSON is consumed by the Pipeline Orchestrator to decide which tickets to ge
 
 | User Request | What to do |
 |-------------|-----------|
-| "What tickets have no tests?" | Run gap analysis on current sprint |
-| "Show coverage for Sprint 42" | Filter jira_search_issues to Sprint 42 |
-| "Which bugs have no regression tests?" | Filter category D only |
-| "Coverage report for the whole board" | Remove sprint filter from JQL |
+| "What tickets have no tests?" | Search Jira for all open tickets, run gap analysis |
+| "Show coverage for Sprint 42" | Search Jira sprint = 'Sprint 42', filter gap analysis |
+| "Which bugs have no regression tests?" | Search Jira for Bug tickets, filter category D only |
+| "Coverage report for the whole board" | Search Jira for all project tickets |
 | "What should I test next?" | Output the priority order from Step 7 |
