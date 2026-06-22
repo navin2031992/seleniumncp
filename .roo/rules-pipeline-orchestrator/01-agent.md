@@ -23,73 +23,35 @@ STAGE 0: FRAMEWORK ANALYSIS
 └────────────────────────────────────────────────────────────┘
                            │
                            ▼
-STAGE 1: JIRA INTAKE
-┌──────────────────────────────────────────────────────────────────┐
-│  Fetch Jira Tickets                                              │
-│  - Sprint tickets with summary, ACs, priority, type, URL         │
-│  - Build scenario plan per ticket (user journey step list)       │
-└──────────────────────────────────────────────────────────────────┘
-                           │
-                           ▼
-STAGE 2: BROWSER-DRIVEN TEST CREATION  ← Locator discovery + generation merged
-┌──────────────────────────────────────────────────────────────────┐
-│  Jira Test Creator (with inline browser walkthrough)             │
-│                                                                  │
-│  For EACH ticket:                                                │
-│    a. Parse acceptance criteria into step-by-step scenario plan  │
-│    b. Open Edge via Selenium MCP                                 │
-│    c. Walk through EVERY scenario live in the browser            │
-│    d. Capture validated selector for EVERY element interacted    │
-│    e. Capture REAL assertion text from the live DOM              │
-│    f. Take screenshots at each step                              │
-│    g. Write locator registry → tests/locators/{Page}.locators.json│
-│    h. Generate test file using ONLY validated selectors          │
-│    i. Close browser                                              │
-│                                                                  │
-│  No invented XPaths. No assumed assertion strings.               │
-└──────────────────────────────────────────────────────────────────┘
-                           │
-                           ▼
-STAGE 3: EXECUTION
-┌──────────────────────────────────────────────────────────────────┐
-│  Test Runner                                                     │
-│  - Use run command from framework-profile.json                   │
-│  - Execute suite                                                 │
-│  - Retry flaky tests (3× with backoff)                           │
-│  - Capture failure screenshots                                   │
-│  - Write JSON/HTML/JUnit reports                                 │
-└──────────────────────────────────────────────────────────────────┘
-                           │
-                           ▼
-STAGE 4: MAINTENANCE                   STAGE 5: REPORTING
-┌─────────────────────┐               ┌──────────────────────────┐
-│  Test Maintenance   │               │  Pipeline Summary         │
-│  - Triage failures  │──────────────►│  - Executive report       │
-│  - Re-discover any  │               │  - Quality gate check     │
-│    broken selectors │               │  - Jira comment updates   │
-│  - Re-run fixed     │               │  - CI/CD webhook          │
-│  - Log all changes  │               └──────────────────────────┘
-└─────────────────────┘
+STAGE 1: JIRA INTAKE                STAGE 2: LOCATOR DISCOVERY
+┌─────────────────────┐             ┌──────────────────────────┐
+│  Fetch Jira Tickets │             │  XPath Discovery          │
+│  - Sprint tickets   │────────────►│  - Navigate app pages     │
+│  - Acceptance crit  │             │  - Map every element      │
+│  - Priority/type    │             │  - Validate selectors     │
+│  - Affected pages   │             │  - Write locator registry │
+└─────────────────────┘             └──────────────────────────┘
+         │                                       │
+         ▼                                       ▼
+STAGE 3: TEST GENERATION            STAGE 4: EXECUTION
+┌─────────────────────┐             ┌──────────────────────────┐
+│  Jira Test Creator  │             │  Test Runner              │
+│  - Read profile     │────────────►│  - Use profile run cmd   │
+│  - Read ticket      │             │  - Execute suite          │
+│  - Generate tests   │             │  - Capture failures       │
+│  - Match codebase   │             │  - Write JSON/HTML report │
+│    style exactly    │             └──────────────────────────┘
+└─────────────────────┘                          │
+                                                 ▼
+STAGE 5: MAINTENANCE               STAGE 6: REPORTING
+┌─────────────────────┐            ┌──────────────────────────┐
+│  Test Maintenance   │            │  Pipeline Summary         │
+│  - Triage failures  │───────────►│  - Executive report       │
+│  - Heal selectors   │            │  - Quality gate check     │
+│  - Re-run fixed     │            │  - Jira comment updates   │
+│  - Log all changes  │            │  - CI/CD webhook          │
+└─────────────────────┘            └──────────────────────────┘
 ```
-
-### Why Stage 2 merges locator discovery and test creation
-
-Previously, locator discovery (XPath Discovery agent) ran as a separate stage before test
-generation (Jira Test Creator). This created two problems:
-
-1. The discovery ran on every page generically — not on the specific paths the ticket scenarios
-   actually follow.
-2. The test creator still had to map generic locators to ticket-specific elements, introducing
-   errors and mismatches.
-
-In the new design, the Jira Test Creator walks through each scenario **step by step** in a live
-browser. It captures selectors exactly when and where the scenario needs them. This means:
-- Every locator is validated at the exact moment it is used in the scenario
-- Assertion strings are read from the real DOM, not guessed
-- The locator registry is a byproduct of test creation, not a prerequisite
-
-The standalone XPath Discovery agent remains available for **exploratory page mapping** (e.g.,
-mapping a new page before any tickets exist for it). But it is no longer a required pipeline stage.
 
 ---
 
@@ -117,53 +79,38 @@ Maintain `tests/pipeline-state.json` throughout the run:
       "totalTickets": 8,
       "processedTickets": 8
     },
-    "browserDrivenTestCreation": {
+    "locatorDiscovery": {
       "status": "completed",
-      "completedAt": "2024-01-15T09:30:00Z",
-      "tickets": {
-        "PROJ-123": {
-          "browserWalkthrough": "completed",
-          "scenariosWalked": 3,
-          "locatorsCaptured": 6,
-          "screenshotsTaken": 4,
-          "assertionsCaptured": 4,
-          "locatorFile": "tests/locators/LoginPage.locators.json",
-          "testFile": "src/test/resources/features/Login.feature"
-        },
-        "PROJ-124": {
-          "browserWalkthrough": "completed",
-          "scenariosWalked": 2,
-          "locatorsCaptured": 4,
-          "screenshotsTaken": 3,
-          "assertionsCaptured": 2,
-          "locatorFile": "tests/locators/CartPage.locators.json",
-          "testFile": "src/test/resources/features/CartBug.feature"
-        }
-      },
-      "totalTestFilesGenerated": 8,
-      "totalTestCasesGenerated": 47,
-      "totalLocatorsCaptured": 52,
-      "totalScreenshots": 28
+      "completedAt": "2024-01-15T09:15:00Z",
+      "pagesDiscovered": 12,
+      "elementsFound": 156,
+      "stableSelectors": 148
+    },
+    "testGeneration": {
+      "status": "completed",
+      "completedAt": "2024-01-15T09:25:00Z",
+      "testFilesGenerated": 8,
+      "testCasesGenerated": 47
     },
     "execution": {
       "status": "completed",
-      "completedAt": "2024-01-15T09:50:00Z",
+      "completedAt": "2024-01-15T09:45:00Z",
       "runCommand": "mvn test -Pregression",
       "total": 47,
-      "passed": 44,
-      "failed": 3,
+      "passed": 41,
+      "failed": 6,
       "skipped": 0,
-      "passRate": 93.6
+      "passRate": 87.2
     },
     "maintenance": {
       "status": "completed",
-      "completedAt": "2024-01-15T09:55:00Z",
-      "autoHealed": 2,
-      "manualReviewRequired": 1
+      "completedAt": "2024-01-15T09:50:00Z",
+      "autoHealed": 3,
+      "manualReviewRequired": 2
     },
     "reporting": {
       "status": "completed",
-      "completedAt": "2024-01-15T09:56:00Z",
+      "completedAt": "2024-01-15T09:51:00Z",
       "reportPath": "tests/reports/2024-01-15/pipeline-summary.md"
     }
   }
@@ -182,17 +129,13 @@ Steps:
 0. Check .roo/framework-profile.json — if missing, run Framework Analyzer first
 1. Fetch Jira tickets: sprint = 'Sprint 42' AND issuetype in (Story, Bug, Task)
    Save to: tests/fixtures/sprint-42-tickets.json
-2. For EACH ticket (browser-driven test creation):
-   a. Parse ACs into a step-by-step scenario plan
-   b. Open Edge — walk through every scenario live
-   c. Capture selectors at each step (validated against the live DOM)
-   d. Capture real assertion text (error messages, success text, URLs)
-   e. Write locator registry → tests/locators/{Page}.locators.json
-   f. Generate test file using ONLY validated selectors
-   g. Close browser
-3. Execute full test suite using run command from framework-profile.json
-4. On any failures → Test Maintenance diagnoses and heals where possible
-5. Generate pipeline summary report
+   (Jira is accessed via the corporate LLM integration)
+2. Extract all page URLs referenced in tickets
+3. For each URL → run XPath Discovery (skip if locator file already exists and is recent)
+4. For each Jira ticket → Jira Test Creator generates tests in project's native style
+5. Execute full test suite using run command from framework-profile.json
+6. On any failures → Test Maintenance diagnoses and heals where possible
+7. Generate pipeline summary report
 ```
 
 ### Single Ticket Pipeline
@@ -202,9 +145,10 @@ Input: "Full pipeline for PROJ-123"
 Steps:
 0. Read .roo/framework-profile.json (required)
 1. Fetch PROJ-123 from Jira (via corporate LLM integration)
-2. Browser-driven test creation (walk scenarios, capture locators, generate test)
-3. Test Runner executes only the new tests
-4. Report results
+2. XPath Discovery on pages referenced in the ticket
+3. Jira Test Creator generates test file(s)
+4. Test Runner executes only the new tests
+5. Report results
 ```
 
 ### Regression-Only Run (no generation)
@@ -280,9 +224,8 @@ Stage 6 produces:
 |--------------|-----------|---------|
 | Framework Analysis fails | YES | Cannot continue — project not understood |
 | Jira search returns no tickets | YES | Verify project key and sprint name, retry |
-| Browser walkthrough: URL unreachable | NO | Skip that ticket, note in report, continue with others |
-| Browser walkthrough: element not found | NO | Leave TODO in generated test, continue walkthrough |
-| Test creation: 1 ticket fails entirely | NO | Skip ticket, log error, continue with rest |
+| XPath Discovery: URL unreachable | NO | Skip that page, note in report, continue |
+| Test Generation: 1 ticket fails | NO | Skip ticket, log error, continue with rest |
 | Execution: 0% pass rate | YES | Environment likely down — halt, escalate |
 | Maintenance: cannot heal test | NO | Flag for human review, continue reporting |
 
@@ -351,15 +294,12 @@ Webhook notification after completion (posts to `config/selenium.config.json →
 | Metric | Value |
 |--------|-------|
 | Tickets Processed | 8 / 8 |
-| Browser Walkthroughs Completed | 8 / 8 |
-| Locators Captured (validated) | 52 |
-| Assertion Strings Captured from DOM | 24 |
 | Test Cases Generated | 47 |
 | Tests Executed | 47 |
-| ✅ Passed | 44 (93.6%) |
-| ❌ Failed | 3 (6.4%) |
-| 🔧 Auto-Healed | 2 |
-| 🔍 Manual Review Needed | 1 |
+| ✅ Passed | 41 (87.2%) |
+| ❌ Failed | 6 (12.8%) |
+| 🔧 Auto-Healed | 3 |
+| 🔍 Manual Review Needed | 2 |
 
 ## Quality Gate: ⚠️ WARN (threshold: 90%)
 Pass rate 87.2% is below the 90% quality gate threshold.
@@ -387,15 +327,12 @@ Pass rate 87.2% is below the 90% quality gate threshold.
 
 ## Orchestrator Decision Matrix
 
-Stages: 0=Framework Analysis, 1=Jira Intake, 2=Browser-Driven Test Creation, 3=Execution, 4=Maintenance, 5=Reporting
-
 | Input | Stages to Run |
 |-------|--------------|
-| New project, first run | 0 → 1 → 2 → 3 → 4 → 5 |
-| **Migrate to BDD first** | Run 🔄 BDD Converter standalone BEFORE pipeline, then 0 (re-read) → 1 → 2 → 3 → 4 → 5 |
-| Existing profile, new sprint | 1 → 2 → 3 → 4 → 5 |
-| Regression run only (no new tickets) | 3 → 4 → 5 |
-| Single new Jira ticket | 1 (single ticket) → 2 (walk + generate) → 3 (single) → 5 |
-| Fix broken tests | 4 (re-heal) → 3 (re-run) → 5 |
-| Re-map locators for a page only | Use XPath Discovery agent standalone → 5 |
-| Framework changed | 0 (re-run) → confirm profile → resume at 1 |
+| New project, first run | 0 → 1 → 2 → 3 → 4 → 5 → 6 |
+| Existing profile, new sprint | 1 → 2 → 3 → 4 → 5 → 6 |
+| Regression run only | 4 → 5 → 6 |
+| Single new Jira ticket | 1 (single) → 2 (ticket pages) → 3 (single) → 4 (single) → 6 |
+| Fix broken tests | 5 → 4 (re-run) → 6 |
+| Re-discover locators | 2 → 6 |
+| Framework changed | 0 (re-run) → confirm profile |

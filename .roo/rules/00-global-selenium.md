@@ -8,40 +8,18 @@ YOUR EXISTING PROJECT (any language / any framework)
                 ▼
   ┌─────────────────────────┐
   │  🔬 Framework Analyzer  │  ──►  .roo/framework-profile.json
-  │  Run FIRST, always      │       (shared memory for all agents)
+  │  Run FIRST, one time    │       (shared memory for all agents)
   └─────────────────────────┘
                 │
-                ├──────────────────────────────────────────────────────────┐
-                │  (OPTIONAL — run if migrating to BDD)                    │
-                ▼                                                           │
-  ┌──────────────────────────────────────────────────────┐                 │
-  │  🔄 BDD Converter                                    │                 │
-  │                                                      │                 │
-  │  Asks: Playwright BDD or Selenium BDD?               │                 │
-  │  Converts every test file to:                        │                 │
-  │    • Gherkin .feature files                          │                 │
-  │    • Step definition files (language-native)         │                 │
-  │    • Page Objects (updated to BDD style)             │                 │
-  │    • Config + dependency files                       │                 │
-  │  Updates framework-profile.json → bdd: true          │                 │
-  │  Originals kept until you confirm migration works    │                 │
-  └──────────────────────────────────────────────────────┘                 │
-                │                                                           │
-                └───────────────────────────────────────────────────────────┘
-                │
-                ▼
-  ┌──────────────────────────────────────────────────────┐
-  │  🎫 Jira Test Creator  (browser-driven)              │
-  │                                                      │
-  │  1. Read Jira ticket → extract scenarios             │
-  │  2. Open Edge → walk every scenario LIVE             │
-  │  3. Capture validated selector at each step          │
-  │  4. Capture real assertion text from the DOM         │
-  │  5. Write tests/locators/{Page}.locators.json        │
-  │  6. Generate test file using ONLY live selectors     │
-  │     (in BDD style if framework-profile.json bdd:true)│
-  └──────────────────────────────────────────────────────┘
-                │
+        ┌───────┴────────┐
+        ▼                ▼
+  ┌─────────────┐  ┌──────────────────┐
+  │  🔍 XPath   │  │  🎫 Jira Test    │
+  │  Discovery  │  │  Creator         │
+  │  (optional) │  │  Give ticket ID  │
+  └─────────────┘  └──────────────────┘
+        │                │
+        └───────┬─────────┘
                 ▼
         ┌──────────────┐
         │  ▶️ Test     │
@@ -60,30 +38,21 @@ YOUR EXISTING PROJECT (any language / any framework)
   │  (runs all the above end-to-end)│
   └─────────────────────────────────┘
 
-Also available (standalone):
-  🔍 XPath Discovery  — standalone page mapping (use when no ticket exists yet)
-  📊 Test Gap Analyzer   — which tickets/stories have no tests?
+Also available:
+  📊 Test Gap Analyzer   — which tickets/stories have no tests? (accepts manual ticket input)
   📦 Test Data Manager   — manage test fixtures and data files
 ```
 
 ## Agent Execution Order (First Time)
 
-| Step | Agent | What it does | Required? |
-|------|-------|-------------|-----------|
-| 1 | **🔬 Framework Analyzer** | Scans your project, writes `.roo/framework-profile.json` | Always |
-| 2 | **🔄 BDD Converter** | Converts entire project to Playwright BDD or Selenium BDD | Only if migrating to BDD |
-| 3 | **🎫 Jira Test Creator** | Reads ticket → walks scenarios live in Edge → captures real selectors → generates test | Always for new tickets |
-| 4 | **▶️ Test Runner** | Runs the suite using your framework's run command | Always |
-| 5 | **🔧 Test Maintenance** | Heals any remaining broken selectors, diagnoses failures | On failure |
-| OR | **🔄 Pipeline Orchestrator** | Runs steps 1, 3–5 end-to-end automatically | Full automation |
-
-> **BDD Converter runs only once per migration.** After conversion, all subsequent test generation
-> (via Jira Test Creator) automatically produces BDD-style output because `framework-profile.json`
-> is updated to `bdd: true`.
-
-> **XPath Discovery** is no longer a mandatory pipeline step. The Jira Test Creator discovers
-> selectors inline during the browser walkthrough. Use XPath Discovery only for standalone
-> exploratory page mapping.
+| Step | Agent | What it does |
+|------|-------|-------------|
+| 1 | **🔬 Framework Analyzer** | Scans your project, writes `.roo/framework-profile.json` |
+| 2 | **🔍 XPath Discovery** *(optional)* | Navigates live app pages, maps all element selectors |
+| 3 | **🎫 Jira Test Creator** | Give it a ticket ID → generates tests in your project's exact style |
+| 4 | **▶️ Test Runner** | Runs the suite using your framework's run command |
+| 5 | **🔧 Test Maintenance** | Heals broken selectors, diagnoses failures |
+| OR | **🔄 Pipeline Orchestrator** | Runs steps 1–5 end-to-end automatically |
 
 ## The Framework Profile — Shared Memory
 
